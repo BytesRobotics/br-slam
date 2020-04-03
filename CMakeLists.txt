@@ -18,14 +18,20 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(message_filters REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 add_executable(br-slam src/br-slam.cpp)
+
 target_include_directories(br-slam PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/br-slam>
   $<INSTALL_INTERFACE:include>)
+
 ament_target_dependencies(
-  br-slam
-  "rclcpp"
+        br-slam
+        rclcpp
+        message_filters
+        sensor_msgs
 )
 
 install(TARGETS br-slam
