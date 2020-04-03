@@ -1,0 +1,6 @@
+[submodule "bytes-orb-slam"]
+	path = bytes-orb-slam
+	url = https://github.com/BytesRobotics/bytes-orb-slam.git
+[submodule "bytes-orb-viz"]
+	path = bytes-orb-viz
+	url = https://github.com/BytesRobotics/bytes-orb-viz.git
