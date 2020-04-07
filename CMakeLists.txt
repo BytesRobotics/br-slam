@@ -20,18 +20,31 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(OpenCV 4.2 REQUIRED)
 
-add_executable(br-slam src/br-slam.cpp)
+add_executable(br-slam src/br-slam.cpp bytes-orb-slam/src/System.cpp bytes-orb-slam/src/ORBExtractor.cpp bytes-orb-slam/src/Frame.cpp)
 
 target_include_directories(br-slam PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/br-slam>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include/br-slam>)
+
+target_include_directories(br-slam PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/bytes-orb-slam/include>
+        $<INSTALL_INTERFACE:include/bytes-orb-slam>)
 
 ament_target_dependencies(
         br-slam
         rclcpp
         message_filters
         sensor_msgs
+        nav_msgs
+        cv_bridge
+        OpenCV
+        Eigen3
 )
 
 install(TARGETS br-slam
