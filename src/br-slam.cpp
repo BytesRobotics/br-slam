@@ -33,7 +33,9 @@ void BytesSlam::stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, 
         return;
     }
 
-    slam.Track(left_cv_ptr->image, right_cv_ptr->image, (static_cast<double>(left_info->header.stamp.sec) + static_cast<double>(left_info->header.stamp.nanosec)/1e9));
+    image_geometry::StereoCameraModel stereo_camera_model;
+    stereo_camera_model.fromCameraInfo(left_info, right_info);
+    slam.Track(left_cv_ptr->image, right_cv_ptr->image, stereo_camera_model, (static_cast<double>(left_info->header.stamp.sec) + static_cast<double>(left_info->header.stamp.nanosec)/1e9));
 }
 
 void BytesSlam::imu_cb(const sensor_msgs::msg::Imu::SharedPtr data) {

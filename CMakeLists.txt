@@ -22,9 +22,10 @@ find_package(message_filters REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
-find_package(cv_bridge REQUIRED)
+find_package(image_geometry REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV 4.2 REQUIRED)
+
 
 add_executable(br-slam src/br-slam.cpp bytes-orb-slam/src/System.cpp bytes-orb-slam/src/ORBExtractor.cpp bytes-orb-slam/src/Frame.cpp)
 
@@ -45,6 +46,7 @@ ament_target_dependencies(
         cv_bridge
         OpenCV
         Eigen3
+        image_geometry
 )
 
 install(TARGETS br-slam
