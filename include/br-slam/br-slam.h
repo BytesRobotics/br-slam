@@ -35,30 +35,25 @@ private:
     message_filters::Subscriber<sensor_msgs::msg::Image> right_image_sub_;
     message_filters::Subscriber<sensor_msgs::msg::CameraInfo> right_image_info_sub_;
 
-    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr wheel_odom_sub;
-    rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr altimeter_sub;
+    message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sub_;
+    message_filters::Subscriber<geometry_msgs::msg::PoseWithCovarianceStamped> altimeter_sub_;
+    message_filters::Subscriber<nav_msgs::msg::Odometry> wheel_odom_sub_;
 
     // The follow is synchronized with images to provide optimal SLAM. Images should be publishing at 15fps
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo,
-                                               sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo> sync_policy_;
+                                               sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo, sensor_msgs::msg::Imu,
+                                               geometry_msgs::msg::PoseWithCovarianceStamped, nav_msgs::msg::Odometry> sync_policy_;
     typedef message_filters::Synchronizer<sync_policy_> Sync_;
     std::shared_ptr<Sync_> sync_;
 
     void stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& left_info,
-                   const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info);
+                   const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info,
+                   const std::shared_ptr<sensor_msgs::msg::Imu>& imu_data, const std::shared_ptr<geometry_msgs::msg::PoseWithCovarianceStamped>& altimeter_data,
+                   const std::shared_ptr<nav_msgs::msg::Odometry>& wheel_odom);
 
     // CV bridge for converting ROS image topics to Opencv topics
     cv_bridge::CvImageConstPtr right_cv_ptr;
     cv_bridge::CvImageConstPtr left_cv_ptr;
-
-    //Standard callbacks for IMU, wheel odom, altimeter @ 30Hz
-    void imu_cb(const sensor_msgs::msg::Imu::SharedPtr data);
-    sensor_msgs::msg::Imu::SharedPtr imu_data;
-    void wheel_odom_cb(const nav_msgs::msg::Odometry::SharedPtr data);
-    nav_msgs::msg::Odometry::SharedPtr wheel_odom_data;
-    void altimeter_cb(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr data);
-    geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr altimeter_data;
 
     // Bytes ORB SLAM system
     System slam;
