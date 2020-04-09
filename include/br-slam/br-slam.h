@@ -40,8 +40,10 @@ private:
     rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr altimeter_sub;
 
     // The follow is synchronized with images to provide optimal SLAM. Images should be publishing at 15fps
-    message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo,
-                                      sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo> sync_;
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo,
+                                               sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo> sync_policy_;
+    typedef message_filters::Synchronizer<sync_policy_> Sync_;
+    std::shared_ptr<Sync_> sync_;
 
     void stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& left_info,
                    const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info);

@@ -6,11 +6,13 @@ left_image_sub_(this, "stereo/left/resize/image"),
 left_image_info_sub_(this, "stereo/left/resize/camera_info"),
 right_image_sub_(this, "stereo/right/resize/image"),
 right_image_info_sub_(this, "stereo/right/resize/camera_info"),
-sync_(left_image_sub_, left_image_info_sub_, right_image_sub_, right_image_info_sub_, 10),
 slam(dynamic_cast<Node*>(this), "/home/michael")
 {
     RCLCPP_INFO(this->get_logger(), "Beginning Bytes SLAM");
-    sync_.registerCallback(&BytesSlam::stereo_cb, this);
+
+    sync_.reset(new Sync_(sync_policy_(10), left_image_sub_, left_image_info_sub_, right_image_sub_, right_image_info_sub_));
+    sync_->registerCallback(&BytesSlam::stereo_cb, this);
+
     imu_sub = this->create_subscription<sensor_msgs::msg::Imu>("imu/data", 10, std::bind(&BytesSlam::imu_cb, this, std::placeholders::_1));
     wheel_odom_sub = this->create_subscription<nav_msgs::msg::Odometry>("mobile_base_controller/odom", 10, std::bind(&BytesSlam::wheel_odom_cb, this, std::placeholders::_1));
     altimeter_sub = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("altimeter/pose", 10, std::bind(&BytesSlam::altimeter_cb, this, std::placeholders::_1));

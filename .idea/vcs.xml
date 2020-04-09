@@ -3,6 +3,8 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/bytes-orb-slam" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/bytes-orb-slam/ThirdParty/DBow3" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/bytes-orb-slam/ThirdParty/g2o" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/bytes-orb-viz" vcs="Git" />
   </component>
 </project>
