@@ -25,9 +25,10 @@ find_package(cv_bridge REQUIRED)
 find_package(image_geometry REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV 4.2 REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
-
-add_executable(br-slam src/br-slam.cpp bytes-orb-slam/src/System.cpp bytes-orb-slam/src/ORBExtractor.cpp bytes-orb-slam/src/Frame.cpp)
+add_executable(br-slam src/br-slam.cpp bytes-orb-slam/src/System.cpp bytes-orb-slam/src/ORBExtractor.cpp bytes-orb-slam/src/Frame.cpp bytes-orb-slam/src/Tracking.cpp)
 
 target_include_directories(br-slam PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/br-slam>
@@ -47,6 +48,8 @@ ament_target_dependencies(
         OpenCV
         Eigen3
         image_geometry
+        tf2
+        tf2_ros
 )
 
 install(TARGETS br-slam

@@ -9,7 +9,7 @@ right_image_info_sub_(this, "stereo/right/resize/camera_info"),
 imu_sub_(this, "imu/data"),
 altimeter_sub_(this, "altimeter/pose"),
 wheel_odom_sub_(this, "mobile_base_controller/odom"),
-slam(dynamic_cast<Node*>(this), "/home/michael")
+slam(dynamic_cast<Node*>(this))
 {
     RCLCPP_INFO(this->get_logger(), "Beginning Bytes SLAM");
 
@@ -39,7 +39,7 @@ void BytesSlam::stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, 
 
     image_geometry::StereoCameraModel stereo_camera_model;
     stereo_camera_model.fromCameraInfo(left_info, right_info);
-    slam.Track(left_cv_ptr->image, right_cv_ptr->image, stereo_camera_model, (static_cast<double>(left_info->header.stamp.sec) + static_cast<double>(left_info->header.stamp.nanosec)/1e9));
+    slam.Track(left_cv_ptr->image, right_cv_ptr->image, stereo_camera_model, imu_data, altimeter_data, wheel_odom);
 }
 
 int main(int argc, char ** argv)
