@@ -28,7 +28,7 @@ find_package(OpenCV 4.2 REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 
-add_executable(br-slam src/br-slam.cpp bytes-orb-slam/src/System.cpp bytes-orb-slam/src/ORBExtractor.cpp bytes-orb-slam/src/Frame.cpp bytes-orb-slam/src/Tracking.cpp)
+add_executable(br-slam src/br-slam.cpp bytes-orb-slam/src/System.cpp bytes-orb-slam/src/ORBExtractor.cpp bytes-orb-slam/src/Frame.cpp bytes-orb-slam/src/Tracking.cpp bytes-orb-slam/src/Map.cpp)
 
 target_include_directories(br-slam PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/br-slam>
