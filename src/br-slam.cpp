@@ -13,16 +13,24 @@ slam(dynamic_cast<Node*>(this))
 {
     RCLCPP_INFO(this->get_logger(), "Beginning Bytes SLAM");
 
-    sync_.reset(new Sync_(sync_policy_(10), left_image_sub_, left_image_info_sub_,
-            right_image_sub_, right_image_info_sub_, imu_sub_, altimeter_sub_, wheel_odom_sub_));
-    sync_->registerCallback(&BytesSlam::stereo_cb, this);
+    this->declare_parameter("stereo_only", false);
+
+    if(this->get_parameter("stereo_only").as_bool()){
+        stereo_sync_.reset(new Stereo_Sync_(stereo_sync_policy_(10), left_image_sub_, left_image_info_sub_,
+                              right_image_sub_, right_image_info_sub_));
+        stereo_sync_->registerCallback(&BytesSlam::stereo_cb, this);
+    } else {
+        sync_.reset(new Sync_(sync_policy_(10), left_image_sub_, left_image_info_sub_,
+                              right_image_sub_, right_image_info_sub_, imu_sub_, altimeter_sub_, wheel_odom_sub_));
+        sync_->registerCallback(&BytesSlam::slam_cb, this);
+    }
 }
 
 // Callback for the stereo camera pair called on synchronization with left and right images
-void BytesSlam::stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& left_info,
-                          const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info,
-                          const std::shared_ptr<sensor_msgs::msg::Imu>& imu_data, const std::shared_ptr<geometry_msgs::msg::PoseWithCovarianceStamped>& altimeter_data,
-                          const std::shared_ptr<nav_msgs::msg::Odometry>& wheel_odom) {
+void BytesSlam::slam_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& left_info,
+                        const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info,
+                        const std::shared_ptr<sensor_msgs::msg::Imu>& imu_data, const std::shared_ptr<geometry_msgs::msg::PoseWithCovarianceStamped>& altimeter_data,
+                        const std::shared_ptr<nav_msgs::msg::Odometry>& wheel_odom) {
     try {
         left_cv_ptr = cv_bridge::toCvShare(left, "mono8");
     } catch (cv_bridge::Exception& e) {
@@ -40,6 +48,27 @@ void BytesSlam::stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, 
     image_geometry::StereoCameraModel stereo_camera_model;
     stereo_camera_model.fromCameraInfo(left_info, right_info);
     slam.Track(left_cv_ptr->image, right_cv_ptr->image, stereo_camera_model, imu_data, altimeter_data, wheel_odom);
+}
+
+void BytesSlam::stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image> &left, const std::shared_ptr<sensor_msgs::msg::CameraInfo> &left_info,
+                          const std::shared_ptr<sensor_msgs::msg::Image> &right, const std::shared_ptr<sensor_msgs::msg::CameraInfo> &right_info) {
+    try {
+        left_cv_ptr = cv_bridge::toCvShare(left, "mono8");
+    } catch (cv_bridge::Exception& e) {
+        RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+        return;
+    }
+
+    try {
+        right_cv_ptr = cv_bridge::toCvShare(right, "mono8");
+    } catch (cv_bridge::Exception& e) {
+        RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+        return;
+    }
+
+    image_geometry::StereoCameraModel stereo_camera_model;
+    stereo_camera_model.fromCameraInfo(left_info, right_info);
+    slam.Track(left_cv_ptr->image, right_cv_ptr->image, stereo_camera_model);
 }
 
 int main(int argc, char ** argv)

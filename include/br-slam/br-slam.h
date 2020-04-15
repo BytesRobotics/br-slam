@@ -39,17 +39,27 @@ private:
     message_filters::Subscriber<geometry_msgs::msg::PoseWithCovarianceStamped> altimeter_sub_;
     message_filters::Subscriber<nav_msgs::msg::Odometry> wheel_odom_sub_;
 
-    // The follow is synchronized with images to provide optimal SLAM. Images should be publishing at 15fps
+    /// The following callback and sync policies synchronize with images to provide optimal SLAM. Images should be publishing at 15fps
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo,
                                                sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo, sensor_msgs::msg::Imu,
                                                geometry_msgs::msg::PoseWithCovarianceStamped, nav_msgs::msg::Odometry> sync_policy_;
     typedef message_filters::Synchronizer<sync_policy_> Sync_;
     std::shared_ptr<Sync_> sync_;
 
+    void slam_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& left_info,
+                 const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info,
+                 const std::shared_ptr<sensor_msgs::msg::Imu>& imu_data, const std::shared_ptr<geometry_msgs::msg::PoseWithCovarianceStamped>& altimeter_data,
+                 const std::shared_ptr<nav_msgs::msg::Odometry>& wheel_odom);
+
+    /// Functions for only dealing with images. This is good for debugging and isolated testing of the image software
+
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo,
+            sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo> stereo_sync_policy_;
+    typedef message_filters::Synchronizer<stereo_sync_policy_> Stereo_Sync_;
+    std::shared_ptr<Stereo_Sync_> stereo_sync_;
+
     void stereo_cb(const std::shared_ptr<sensor_msgs::msg::Image>& left, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& left_info,
-                   const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info,
-                   const std::shared_ptr<sensor_msgs::msg::Imu>& imu_data, const std::shared_ptr<geometry_msgs::msg::PoseWithCovarianceStamped>& altimeter_data,
-                   const std::shared_ptr<nav_msgs::msg::Odometry>& wheel_odom);
+                   const std::shared_ptr<sensor_msgs::msg::Image>& right, const std::shared_ptr<sensor_msgs::msg::CameraInfo>& right_info);
 
     // CV bridge for converting ROS image topics to Opencv topics
     cv_bridge::CvImageConstPtr right_cv_ptr;
